@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SGEPI | Sistema de Gerenciamento de EPIs - Construtora & Têxtil</title>
+  <!-- Bootstrap 5 CSS & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-light">
+
+  <div class="d-flex" id="wrapper">
+    <!-- TELA BASE: MENU LATERAL (SIDEBAR) -->
+    <aside class="bg-dark text-white p-3 d-flex flex-column justify-content-between style-sidebar" id="sidebar">
+      <div>
+        <!-- Logo e Título do Sistema -->
+        <div class="d-flex align-items-center gap-2 mb-4 px-2">
+          <i class="bi bi-shield-check text-primary fs-3"></i>
+          <span class="fs-5 fw-bold">SGEPI <small class="d-block fs-7 text-muted fw-normal">SST Construtora</small></span>
+        </div>
+
+        <hr class="text-secondary">
+
+        <!-- Navegação Principal -->
+        <ul class="nav nav-pills flex-column mb-auto" id="menuNavegacao" role="tablist">
+          <li class="nav-item mb-1">
+            <button class="nav-link active text-white w-100 text-start d-flex align-items-center gap-2" id="tab-colaboradores" data-bs-toggle="pill" data-bs-target="#sec-colaboradores" type="button">
+              <i class="bi bi-people-fill"></i> Colaboradores
+            </button>
+          </li>
+          <li class="nav-item mb-1">
+            <button class="nav-link text-white w-100 text-start d-flex align-items-center gap-2" id="tab-epis" data-bs-toggle="pill" data-bs-target="#sec-epis" type="button">
+              <i class="bi bi-boxes"></i> Equipamentos (EPI)
+            </button>
+          </li>
+          <li class="nav-item mb-1">
+            <button class="nav-link text-white w-100 text-start d-flex align-items-center gap-2" id="tab-emprestimos" data-bs-toggle="pill" data-bs-target="#sec-emprestimos" type="button">
+              <i class="bi bi-arrow-left-right"></i> Empréstimo de EPI
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      <!-- TELA BASE: PERFIL DO USUÁRIO LOGADO -->
+      <div class="border-top border-secondary pt-3 mt-auto">
+        <div class="d-flex align-items-center gap-3 px-1">
+          <img src="https://ui-avatars.com/api/?name=Carlos+SST&background=0D6EFD&color=fff" alt="Foto do Operador" class="rounded-circle" width="40" height="40">
+          <div class="lh-1 overflow-hidden">
+            <strong class="d-block text-truncate text-white">Carlos Silva</strong>
+            <small class="text-muted fs-7">Técnico em SST</small>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CONTEÚDO PRINCIPAL (MAIN) -->
+    <main class="w-100 p-4 overflow-auto">
+      <div id="alertContainer"></div>
+
+      <div class="tab-content" id="conteudoAbas">
+
+        <!-- MÓDULO 1: GERENCIAMENTO DE COLABORADORES -->
+        <section class="tab-pane fade show active" id="sec-colaboradores" role="tabpanel">
+          <div class="row g-4">
+            <div class="col-lg-5 col-xl-4">
+              <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-primary text-white p-3 d-flex justify-content-between align-items-center" id="formColabHeader">
+                  <h5 class="card-title m-0 fs-6 fw-bold"><i class="bi bi-person-plus-fill me-2"></i><span id="formColabTitle">Cadastrar Colaborador</span></h5>
+                  <span class="badge bg-white text-primary" id="badgeColabStatus">Novo</span>
+                </div>
+                <div class="card-body p-4">
+                  <form id="colaboradorForm" novalidate>
+                    <input type="hidden" id="colaboradorId">
+                    <div class="mb-3">
+                      <label for="nomeColab" class="form-label fw-semibold">Nome Completo *</label>
+                      <input type="text" class="form-control" id="nomeColab" placeholder="Ex: Carlos Eduardo Silva" required>
+                    </div>
+                    <div class="row g-2 mb-3">
+                      <div class="col-md-6">
+                        <label for="cpfColab" class="form-label fw-semibold">CPF *</label>
+                        <input type="text" class="form-control" id="cpfColab" placeholder="000.000.000-00" required>
+                      </div>
+                      <div class="col-md-6">
+                        <label for="matriculaColab" class="form-label fw-semibold">Matrícula *</label>
+                        <input type="text" class="form-control" id="matriculaColab" placeholder="TEX-1001" required>
+                      </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                      <div class="col-md-6">
+                        <label for="setorColab" class="form-label fw-semibold">Setor *</label>
+                        <select class="form-select" id="setorColab" required>
+                          <option value="" selected disabled>Selecione...</option>
+                          <option value="Obra / Campo">Obra / Campo</option>
+                          <option value="Tecelagem">Tecelagem</option>
+                          <option value="Tinturaria">Tinturaria</option>
+                          <option value="Fiação">Fiação</option>
+                          <option value="Manutenção">Manutenção</option>
+                        </select>
+                      </div>
+                      <div class="col-md-6">
+                        <label for="cargoColab" class="form-label fw-semibold">Cargo *</label>
+                        <input type="text" class="form-control" id="cargoColab" placeholder="Ex: Armador / Tecelão" required>
+                      </div>
+                    </div>
+                    <div class="mb-3">
+                      <label for="statusColab" class="form-label fw-semibold">Status do Colaborador *</label>
+                      <select class="form-select" id="statusColab">
+                        <option value="ATIVO" selected>ATIVO</option>
+                        <option value="INATIVO">INATIVO</option>
+                      </select>
+                    </div>
+                    <div class="d-flex gap-2 mt-4">
+                      <button type="submit" class="btn btn-primary w-100 fw-bold py-2" id="btnSalvarColab">
+                        <i class="bi bi-check-circle me-1"></i> <span id="btnSalvarColabText">Salvar Colaborador</span>
+                      </button>
+                      <button type="button" class="btn btn-outline-secondary d-none" id="btnCancelarColab">Cancelar</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-7 col-xl-8">
+              <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-white p-3 border-bottom-0">
+                  <div class="row g-2 align-items-center">
+                    <div class="col-md-6">
+                      <h5 class="card-title m-0 fw-bold text-dark"><i class="bi bi-people-fill text-primary me-2"></i>Colaboradores Cadastrados</h5>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control bg-light border-start-0" id="pesquisaColab" placeholder="Pesquisar por nome...">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-hover align-middle mb-0">
+                    <thead class="table-dark">
+                      <tr>
+                        <th>Matrícula</th>
+                        <th>Nome</th>
+                        <th>CPF</th>
+                        <th>Setor</th>
+                        <th>Cargo</th>
+                        <th>Status</th>
+                        <th class="text-center">Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tabelaColaboradoresBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- MÓDULO 2: GERENCIAMENTO DE EQUIPAMENTOS (EPI) -->
+        <section class="tab-pane fade" id="sec-epis" role="tabpanel">
+          <div class="row g-4">
+            <div class="col-lg-5 col-xl-4">
+              <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-primary text-white p-3 d-flex justify-content-between align-items-center" id="formEpiHeader">
+                  <h5 class="card-title m-0 fs-6 fw-bold"><i class="bi bi-box-seam me-2"></i><span id="formEpiTitle">Cadastrar Equipamento</span></h5>
+                  <span class="badge bg-white text-primary" id="badgeEpiStatus">Novo</span>
+                </div>
+                <div class="card-body p-4">
+                  <form id="epiForm" novalidate>
+                    <input type="hidden" id="epiId">
+                    <div class="mb-3">
+                      <label for="nomeEpi" class="form-label fw-semibold">Nome do Equipamento *</label>
+                      <input type="text" class="form-control" id="nomeEpi" placeholder="Ex: Capacete de Segurança Aba Frontal" required>
+                    </div>
+                    <div class="mb-3">
+                      <label for="caEpi" class="form-label fw-semibold">Número do C.A. *</label>
+                      <input type="text" class="form-control" id="caEpi" placeholder="Ex: CA-12345" required>
+                    </div>
+                    <div class="row g-2 mb-3">
+                      <div class="col-md-6">
+                        <label for="estoqueEpi" class="form-label fw-semibold">Estoque *</label>
+                        <input type="number" class="form-control" id="estoqueEpi" min="0" placeholder="10" required>
+                      </div>
+                      <div class="col-md-6">
+                        <label for="validadeCaEpi" class="form-label fw-semibold">Validade C.A. *</label>
+                        <input type="date" class="form-control" id="validadeCaEpi" required>
+                      </div>
+                    </div>
+                    <div class="d-flex gap-2 mt-4">
+                      <button type="submit" class="btn btn-primary w-100 fw-bold py-2" id="btnSalvarEpi">
+                        <i class="bi bi-check-circle me-1"></i> <span id="btnSalvarEpiText">Salvar Equipamento</span>
+                      </button>
+                      <button type="button" class="btn btn-outline-secondary d-none" id="btnCancelarEpi">Cancelar</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-7 col-xl-8">
+              <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-white p-3 border-bottom-0">
+                  <h5 class="card-title m-0 fw-bold text-dark"><i class="bi bi-boxes text-primary me-2"></i>Catálogo de Equipamentos</h5>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-hover align-middle mb-0">
+                    <thead class="table-dark">
+                      <tr>
+                        <th>C.A.</th>
+                        <th>Equipamento</th>
+                        <th>Estoque</th>
+                        <th>Validade C.A.</th>
+                        <th class="text-center">Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tabelaEpisBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- MÓDULO 3: CONTROLE DE EMPRÉSTIMO DE EPI -->
+        <section class="tab-pane fade" id="sec-emprestimos" role="tabpanel">
+          <div class="row g-4">
+            <div class="col-lg-5 col-xl-4">
+              <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-primary text-white p-3" id="formEmpHeader">
+                  <h5 class="card-title m-0 fs-6 fw-bold"><i class="bi bi-arrow-left-right me-2"></i><span id="formEmpTitle">Registrar Empréstimo</span></h5>
+                </div>
+                <div class="card-body p-4">
+                  <form id="emprestimoForm" novalidate>
+                    <input type="hidden" id="emprestimoId">
+
+                    <div class="mb-3">
+                      <label for="empColaborador" class="form-label fw-semibold">Colaborador *</label>
+                      <select class="form-select" id="empColaborador" required></select>
+                    </div>
+
+                    <div class="mb-3">
+                      <label for="empEquipamento" class="form-label fw-semibold">Equipamento (EPI) *</label>
+                      <select class="form-select" id="empEquipamento" required></select>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                      <div class="col-md-6">
+                        <label for="empDataRetirada" class="form-label fw-semibold">Data Retirada *</label>
+                        <input type="datetime-local" class="form-control" id="empDataRetirada" required>
+                      </div>
+                      <div class="col-md-6">
+                        <label for="empDataPrevista" class="form-label fw-semibold">Devolução Prevista *</label>
+                        <input type="date" class="form-control" id="empDataPrevista" required>
+                      </div>
+                    </div>
+
+                    <div class="mb-3">
+                      <label for="empStatus" class="form-label fw-semibold">Status do Empréstimo *</label>
+                      <select class="form-select" id="empStatus" required></select>
+                    </div>
+
+                    <div id="containerCamposDevolucao" class="d-none border-top pt-3 mt-3">
+                      <div class="mb-3">
+                        <label for="empDataDevolucao" class="form-label fw-semibold">Data Efetiva da Devolução *</label>
+                        <input type="datetime-local" class="form-control" id="empDataDevolucao">
+                      </div>
+                      <div class="mb-3">
+                        <label for="empObservacao" class="form-label fw-semibold">Observação na Devolução</label>
+                        <textarea class="form-control" id="empObservacao" rows="2" placeholder="Descreva o estado do equipamento ou motivo de perda..."></textarea>
+                      </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                      <button type="submit" class="btn btn-primary w-100 fw-bold py-2" id="btnSalvarEmp">
+                        <i class="bi bi-check-circle me-1"></i> <span id="btnSalvarEmpText">Confirmar Retirada</span>
+                      </button>
+                      <button type="button" class="btn btn-outline-secondary d-none" id="btnCancelarEmp">Cancelar</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-7 col-xl-8">
+              <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-white p-3 border-bottom-0">
+                  <h5 class="card-title m-0 fw-bold text-dark"><i class="bi bi-journal-check text-primary me-2"></i>Histórico e Registro de Empréstimos</h5>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-hover align-middle mb-0">
+                    <thead class="table-dark">
+                      <tr>
+                        <th>Colaborador</th>
+                        <th>Equipamento</th>
+                        <th>Retirada</th>
+                        <th>Devol. Prevista</th>
+                        <th>Status</th>
+                        <th class="text-center">Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tabelaEmprestimosBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL ALTERAR STATUS / INATIVAR COLABORADOR -->
+  <div class="modal fade" id="modalExcluir" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-warning text-dark">
+          <h5 class="modal-title fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i>Alterar Status do Colaborador</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <p class="mb-1" id="modalMensagemAcaoColab">Deseja alterar o status do colaborador abaixo?</p>
+          <div class="alert alert-light border my-3 p-3">
+            <strong id="modalNomeColaborador" class="d-block text-dark fs-5">--</strong>
+            <small class="text-muted">Matrícula: <span id="modalMatriculaColaborador">--</span></small>
+          </div>
+        </div>
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-warning fw-bold" id="btnConfirmarExclusao">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL EXCLUIR EPI -->
+  <div class="modal fade" id="modalExcluirEpi" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i>Excluir Equipamento</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <p class="mb-1">Tem certeza que deseja remover o equipamento abaixo do estoque?</p>
+          <div class="alert alert-light border my-3 p-3">
+            <strong id="modalNomeEpi" class="d-block text-dark fs-5">--</strong>
+            <small class="text-muted">Número do C.A.: <span id="modalCaEpi">--</span></small>
+          </div>
+        </div>
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-danger fw-bold" id="btnConfirmarExclusaoEpi">Confirmar Exclusão</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL VISUALIZAR DETALHES DO STATUS DO EMPRÉSTIMO -->
+  <div class="modal fade" id="modalInfoStatus" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-info text-white">
+          <h5 class="modal-title fw-bold"><i class="bi bi-info-circle-fill me-2"></i>Informações do Status</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <small class="text-muted d-block fw-semibold">Colaborador:</small>
+            <span id="infoColaborador" class="fs-6 fw-bold text-dark">--</span>
+          </div>
+          <div class="mb-3">
+            <small class="text-muted d-block fw-semibold">Equipamento (EPI):</small>
+            <span id="infoEquipamento" class="fs-6 fw-bold text-dark">--</span>
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <small class="text-muted d-block fw-semibold">Status Atual:</small>
+              <span id="infoStatusBadge" class="badge bg-primary fs-7">--</span>
+            </div>
+            <div class="col-6">
+              <small class="text-muted d-block fw-semibold">Data de Devolução:</small>
+              <span id="infoDataDevolucao" class="fw-semibold text-dark">--</span>
+            </div>
+          </div>
+          <div class="border-top pt-3">
+            <small class="text-muted d-block fw-semibold mb-1">Observação / Justificativa:</small>
+            <div class="p-3 bg-light border rounded text-secondary" id="infoObservacao">
+              <em>Nenhuma observação registrada.</em>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap 5 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
