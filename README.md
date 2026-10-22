@@ -428,7 +428,7 @@ rectangle "Sistema de Gerenciamento de EPIs (SST Têxtil)" {
 | Perfil | Email | Senha |
 | :--- | :--- | :--- |
 | **Administrador** | `admin@textil.com.br` | `Admin1234` |
-| **Técnico SST** | `carlos.sst@textil.com.br` | `Admin1234` |
+| **Técnico SST** | `carlos.sst@textil.com.br` | `Admin12345` |
 
 ---
 

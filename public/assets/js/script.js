@@ -54,6 +54,19 @@ const SEEDS = {
   emprestimos: []
 };
 
+function resetarFormColaborador() {
+    const form = document.getElementById('formColaborador') || document.querySelector('form');
+    if (form) {
+        form.reset();
+    }
+    
+    // Se existir um campo oculto para guardar o ID na edição, limpa-o também
+    const inputId = document.getElementById('colaboradorId') || document.getElementById('idColaborador');
+    if (inputId) {
+        inputId.value = '';
+    }
+}
+
 function obterDados(chave) {
   try {
     const dadosSalvos = localStorage.getItem(`sgepi_${chave}`);
@@ -157,6 +170,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+  const elModalEpi   = document.getElementById('modalEpi') || document.getElementById('cadastrarEpiModal');
+  const elModalInfo  = document.getElementById('modalInfo') || document.getElementById('infoModal');  
+  const elModalColab = document.getElementById('modalColaborador') || document.getElementById('cadastrarModal');
+  
   if (elModalColab) modalColabInst = new bootstrap.Modal(elModalColab);
   if (elModalEpi) modalEpiInst = new bootstrap.Modal(elModalEpi);
   if (elModalInfo) modalInfoInst = new bootstrap.Modal(elModalInfo);

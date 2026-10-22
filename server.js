@@ -1,16 +1,22 @@
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
 app.use(cors()); // Permite que o Front-end aceda à API
 app.use(express.json()); // Permite receber dados em formato JSON
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
 
 // 1. Configuração da ligação ao banco de dados MySQL (sgepi_db)
 const db = mysql.createPool({
   host: 'localhost',
-  user: 'usuario_aqui',          // Substitua pelo seu utilizador do MySQL
-  password: 'senha_aqui',  // Substitua pela sua palavra-passe do MySQL
+  user: 'root',    // Substitua pelo seu utilizador do MySQL
+  password: '1811',  // Substitua pela sua palavra-passe do MySQL
   database: 'sgepi_db',   // Nome da base de dados do ficheiro
   waitForConnections: true,
   connectionLimit: 10,
