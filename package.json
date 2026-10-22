@@ -1,0 +1,26 @@
+{
+  "name": "sgepi-v2",
+  "version": "1.0.0",
+  "description": "O **Sistema de Gerenciamento de EPIs (SGEPI)** visa automatizar, controlar e auditar o fluxo de empréstimo e devolução de Equipamentos de Proteção Individual no setor têxtil. O foco central da solução é assegurar a conformidade legal com a **NR-06**, evitar paralisações por falta de equipamentos e garantir a rastreabilidade total das entregas por colaborador.",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deboraNicoleEstrela/sgepi-v2.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/deboraNicoleEstrela/sgepi-v2/issues"
+  },
+  "homepage": "https://github.com/deboraNicoleEstrela/sgepi-v2#readme",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.3.0",
+    "mysql2": "^3.24.6"
+  }
+}
