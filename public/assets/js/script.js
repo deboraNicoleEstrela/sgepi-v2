@@ -1,19 +1,16 @@
 // --- CONTROLE DE SESSÃO E AUTENTICAÇÃO ---
 const usuarioLogado = JSON.parse(sessionStorage.getItem('usuarioLogado'));
 
-// Se não houver usuário logado, redireciona imediatamente para o login
 if (!usuarioLogado) {
   window.location.href = 'login.html';
 }
 
-// Função de Logout (Sair)
 function realizarLogout() {
   sessionStorage.removeItem('usuarioLogado');
   window.location.href = 'login.html';
 }
 
-
-// Dados Iniciais (SEEDS) definidos sem campos nulos/undefined
+// Dados Iniciais (SEEDS)
 const SEEDS = {
   colaboradores: [
     { 
@@ -55,17 +52,12 @@ const SEEDS = {
 };
 
 function resetarFormColaborador() {
-    const form = document.getElementById('formColaborador') || document.querySelector('form');
-    if (form) {
-        form.reset();
-    }
+    const form = document.getElementById('colaboradorForm') || document.querySelector('form');
+    if (form) form.reset();
     
-    // Se existir um campo oculto para guardar o ID na edição, limpa-o também
     const inputId = document.getElementById('colaboradorId') || document.getElementById('idColaborador');
-    if (inputId) {
-        inputId.value = '';
-    }
-}
+    if (inputId) inputId.value = '';
+}  
 
 function obterDados(chave) {
   try {
@@ -85,7 +77,6 @@ function obterDados(chave) {
   }
 }
 
-// Previne erros atribuindo valores padrão (fallback)
 function sanitizarItem(chave, item) {
   if (!item || typeof item !== 'object') return {};
 
@@ -135,7 +126,7 @@ function salvarDados(chave, dados) {
   }
 }
 
-// Controle de Modais
+// Variáveis Globais de Controle de Modais
 let idColabExcluir = null;
 let idEpiExcluir = null;
 let modalColabInst = null;
@@ -143,21 +134,33 @@ let modalEpiInst = null;
 let modalInfoInst = null;
 
 // =============================================================================
-// INICIALIZAÇÃO DA APLICAÇÃO
+// INICIALIZAÇÃO DA APLICAÇÃO & EVENTOS
 // =============================================================================
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. Atualização segura do nome do utilizador logado
+  // 1. Atualização do nome do utilizador logado
   const elNomeUsuario = document.getElementById('nomeUsuarioLogado');
-  if (elNomeUsuario && typeof usuarioLogado !== 'undefined' && usuarioLogado?.nome) {
+  if (elNomeUsuario && usuarioLogado?.nome) {
     elNomeUsuario.textContent = usuarioLogado.nome;
   }
 
-  // 2. Referências aos Modais
-  const elModalColab = document.getElementById('modalExcluir');
-  const elModalEpi = document.getElementById('modalExcluirEpi');
-  const elModalInfo = document.getElementById('modalInfoStatus');
+  // 2. Referências e Instâncias de Modais
+  const elModalColab = document.getElementById('modalColaborador') || document.getElementById('modalExcluir');
+  const elModalEpi = document.getElementById('modalEpi') || document.getElementById('modalExcluirEpi');
+  const elModalInfo = document.getElementById('modalInfo') || document.getElementById('modalInfoStatus');
 
-  // 3. Trava do campo CPF (apenas números, máximo 11)
+  if (elModalColab) modalColabInst = new bootstrap.Modal(elModalColab);
+  if (elModalEpi) modalEpiInst = new bootstrap.Modal(elModalEpi);
+  if (elModalInfo) modalInfoInst = new bootstrap.Modal(elModalInfo);
+
+  // 3. REGRA 1: Campo Nome - Apenas letras (com acentos) e espaços
+  const inputNome = document.getElementById('nomeColab');
+  if (inputNome) {
+    inputNome.addEventListener('input', (e) => {
+      e.target.value = e.target.value.replace(/[^a-zA-ZáàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ\s]/g, '');
+    });
+  }
+
+  // 4. Máscara do CPF (apenas números, até 11 dígitos)
   const inputCpf = document.getElementById('cpfColab');
   if (inputCpf) {
     inputCpf.addEventListener('input', (e) => {
@@ -166,18 +169,27 @@ document.addEventListener('DOMContentLoaded', () => {
       v = v.replace(/(\d{3})(\d)/, '$1.$2');
       v = v.replace(/(\d{3})(\d)/, '$1.$2');
       v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-      e.target.value = v;                    // Aplica o valor filtrado ao campo
+      e.target.value = v;
     });
   }
-});
-  const elModalEpi   = document.getElementById('modalEpi') || document.getElementById('cadastrarEpiModal');
-  const elModalInfo  = document.getElementById('modalInfo') || document.getElementById('infoModal');  
-  const elModalColab = document.getElementById('modalColaborador') || document.getElementById('cadastrarModal');
-  
-  if (elModalColab) modalColabInst = new bootstrap.Modal(elModalColab);
-  if (elModalEpi) modalEpiInst = new bootstrap.Modal(elModalEpi);
-  if (elModalInfo) modalInfoInst = new bootstrap.Modal(elModalInfo);
 
+  // 5. REGRA 2: Campo Matrícula - Apenas letras e números (proíbe símbolos)
+  const inputMatricula = document.getElementById('matriculaColab');
+  if (inputMatricula) {
+    inputMatricula.addEventListener('input', (e) => {
+      e.target.value = e.target.value.replace(/[^a-zA-Z0-9\s\-]/g, '-');
+    });
+  }
+
+  // 6. REGRA 3: Campo Cargo - Apenas letras (proíbe numeros e )
+  const inputCargo = document.getElementById('cargoColab');
+  if (inputCargo) {
+    inputCargo.addEventListener('input', (e) => {
+      e.target.value = e.target.value.replace(/[^a-zA-ZáàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ\s\/\-]/g, '-');
+    });
+  }
+
+  // 7. Renderização inicial e escuta de formulários
   renderizarColaboradores();
   renderizarEpis();
   preencherSelectsEmprestimo();
@@ -199,7 +211,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const inputDataRetirada = document.getElementById('empDataRetirada');
   if (inputDataRetirada) {
     inputDataRetirada.value = new Date().toISOString().slice(0, 16);
-  };
+  }
+});
 
 function exibirAlerta(mensagem, tipo = 'success') {
   const container = document.getElementById('alertContainer');
@@ -231,7 +244,6 @@ async function renderizarColaboradores() {
   if (!tbody) return;
 
   try {
-    // Busca os dados atualizados diretamente da API Node.js
     const resposta = await fetch('http://localhost:3000/api/colaboradores');
     const colaboradores = await resposta.json();
 
@@ -278,6 +290,7 @@ async function renderizarColaboradores() {
 
 async function tratarSubmitColaborador(e) {
   e.preventDefault();
+
   const nome = document.getElementById('nomeColab').value.trim();
   const cpf = document.getElementById('cpfColab').value.trim();
   const matricula = document.getElementById('matriculaColab').value.trim();
@@ -301,7 +314,8 @@ async function tratarSubmitColaborador(e) {
     if (resposta.ok) {
       exibirAlerta(`Colaborador <strong>${nome}</strong> salvo no MySQL com sucesso!`, 'success');
       resetarFormColaborador();
-      renderizarColaboradores(); // Recarrega a listagem vinda do MySQL
+      renderizarColaboradores();
+      preencherSelectsEmprestimo();
     } else {
       exibirAlerta('Erro ao salvar colaborador no banco de dados.', 'danger');
     }
@@ -315,7 +329,6 @@ async function executarExclusaoColaborador() {
   if (!idColabExcluir) return;
 
   try {
-    // Busca a lista atual para saber se o status atual é ATIVO ou INATIVO
     const res = await fetch('http://localhost:3000/api/colaboradores');
     const colaboradores = await res.json();
     const colab = colaboradores.find(c => c.id == idColabExcluir);
@@ -324,7 +337,6 @@ async function executarExclusaoColaborador() {
 
     const novoStatus = (colab.status === 'INATIVO') ? 'ATIVO' : 'INATIVO';
 
-    // Envia a atualização do status para a rota PATCH do Node.js
     const resposta = await fetch(`http://localhost:3000/api/colaboradores/${idColabExcluir}/status`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -335,6 +347,7 @@ async function executarExclusaoColaborador() {
       modalColabInst?.hide();
       exibirAlerta(`O colaborador <strong>${colab.nome}</strong> agora está <strong>${novoStatus}</strong>.`, novoStatus === 'INATIVO' ? 'warning' : 'success');
       renderizarColaboradores();
+      preencherSelectsEmprestimo();
     }
   } catch (erro) {
     console.error('Erro ao alterar status:', erro);
@@ -405,29 +418,10 @@ function tratarSubmitEpi(e) {
   preencherSelectsEmprestimo();
 }
 
-function carregarEpiEdicao(id) {
-  const epi = obterDados('epis').find(e => e.id == id);
-  if (!epi) return;
-
-  document.getElementById('epiId').value = epi.id;
-  document.getElementById('nomeEpi').value = epi.nome ?? '';
-  document.getElementById('caEpi').value = epi.ca ?? '';
-  document.getElementById('estoqueEpi').value = epi.estoque ?? 0;
-  document.getElementById('validadeCaEpi').value = epi.validadeCa ?? '';
-
-  document.getElementById('formEpiTitle').textContent = 'Editar Equipamento';
-  document.getElementById('badgeEpiStatus').textContent = 'Edição';
-  document.getElementById('btnSalvarEpiText').textContent = 'Atualizar Equipamento';
-  document.getElementById('btnCancelarEpi').classList.remove('d-none');
-}
-
 function resetarFormEpi() {
-  document.getElementById('epiForm').reset();
-  document.getElementById('epiId').value = '';
-  document.getElementById('formEpiTitle').textContent = 'Cadastrar Equipamento';
-  document.getElementById('badgeEpiStatus').textContent = 'Novo';
-  document.getElementById('btnSalvarEpiText').textContent = 'Salvar Equipamento';
-  document.getElementById('btnCancelarEpi').classList.add('d-none');
+  document.getElementById('epiForm')?.reset();
+  const inputId = document.getElementById('epiId');
+  if (inputId) inputId.value = '';
 }
 
 function abrirModalExcluirEpi(id, nome, ca) {
@@ -452,16 +446,27 @@ function executarExclusaoEpi() {
 // =============================================================================
 // MÓDULO 3: CONTROLE DE EMPRÉSTIMO DE EPI
 // =============================================================================
-function preencherSelectsEmprestimo() {
+async function preencherSelectsEmprestimo() {
   const selectColab = document.getElementById('empColaborador');
   const selectEpi = document.getElementById('empEquipamento');
   if (!selectColab || !selectEpi) return;
 
-  const colaboradores = obterDados('colaboradores');
-  const epis = obterDados('epis');
+  let colaboradores = [];
+  
+  try {
+    const response = await fetch('/api/colaboradores');
+    colaboradores = await response.json();
+  } catch (error) {
+    console.error('Erro ao buscar colaboradores da API:', error);
+    colaboradores = obterDados('colaboradores') || [];
+  }
 
-  // Filtra apenas colaboradores ATIVOS para impedir novas retiradas por colaboradores inativos
-  const colaboradoresAtivos = colaboradores.filter(c => (c.status ?? 'ATIVO') === 'ATIVO');
+  const epis = obterDados('epis') || [];
+
+  const colaboradoresAtivos = colaboradores.filter(c => {
+    const statusLimpo = c.status ? String(c.status).trim().toUpperCase() : 'ATIVO';
+    return statusLimpo === 'ATIVO';
+  });
 
   selectColab.innerHTML = '<option value="" selected disabled>Selecione um colaborador ativo...</option>' +
     colaboradoresAtivos.map(c => `<option value="${c.id}">${c.nome} (${c.matricula})</option>`).join('');
@@ -469,7 +474,9 @@ function preencherSelectsEmprestimo() {
   selectEpi.innerHTML = '<option value="" selected disabled>Selecione um equipamento...</option>' +
     epis.map(e => `<option value="${e.id}">${e.nome} - C.A. ${e.ca} (Estoque: ${e.estoque})</option>`).join('');
 
-  preencherOpcoesStatus(false);
+  if (typeof preencherOpcoesStatus === 'function') {
+    preencherOpcoesStatus(false);
+  }
 }
 
 function preencherOpcoesStatus(modoEdicao = false) {
@@ -594,7 +601,6 @@ function renderizarEmprestimos() {
   }
 
   emprestimos.forEach(emp => {
-    // Preserva o nome do colaborador mesmo que ele esteja inativo
     const colab = colaboradores.find(c => c.id == emp.colaboradorId) ?? { nome: 'Colaborador não encontrado' };
     const epi = epis.find(e => e.id == emp.epiId) ?? { nome: 'EPI não encontrado' };
 
@@ -624,94 +630,25 @@ function renderizarEmprestimos() {
   });
 }
 
-function visualizarInfoStatus(id) {
-  const emp = obterDados('emprestimos').find(e => e.id == id);
-  if (!emp) return;
-
-  const colaboradores = obterDados('colaboradores');
-  const epis = obterDados('epis');
-
-  const colab = colaboradores.find(c => c.id == emp.colaboradorId) ?? { nome: 'Não identificado' };
-  const epi = epis.find(e => e.id == emp.epiId) ?? { nome: 'Não identificado' };
-
-  document.getElementById('infoColaborador').textContent = colab.nome;
-  document.getElementById('infoEquipamento').textContent = epi.nome;
-
-  const badgeStatus = document.getElementById('infoStatusBadge');
-  badgeStatus.textContent = emp.status;
-
-  let badgeClass = 'badge bg-primary fs-7';
-  if (emp.status === 'Devolvido') badgeClass = 'badge bg-success fs-7';
-  if (emp.status === 'Danificado' || emp.status === 'Perdido') badgeClass = 'badge bg-danger fs-7';
-  badgeStatus.className = badgeClass;
-
-  document.getElementById('infoDataDevolucao').textContent = emp.dataDevolucao
-    ? new Date(emp.dataDevolucao).toLocaleString('pt-BR')
-    : 'Ainda não devolvido';
-
-  const elObs = document.getElementById('infoObservacao');
-  if (emp.observacao && emp.observacao.trim() !== '') {
-    elObs.innerHTML = emp.observacao;
-  } else {
-    elObs.innerHTML = '<em>Nenhuma observação informada neste status.</em>';
-  }
-
-  modalInfoInst?.show();
-}
-
-function carregarEmprestimoEdicao(id) {
-  const emp = obterDados('emprestimos').find(e => e.id == id);
-  if (!emp) return;
-
-  document.getElementById('emprestimoId').value = emp.id;
-
-  const selectColab = document.getElementById('empColaborador');
-  const selectEpi = document.getElementById('empEquipamento');
-  const inputRetirada = document.getElementById('empDataRetirada');
-  const inputPrevista = document.getElementById('empDataPrevista');
-
-  selectColab.value = emp.colaboradorId ?? '';
-  selectEpi.value = emp.epiId ?? '';
-  inputRetirada.value = emp.dataRetirada ?? '';
-  inputPrevista.value = emp.dataPrevista ?? '';
-
-  selectColab.disabled = true;
-  selectEpi.disabled = true;
-  inputRetirada.disabled = true;
-  inputPrevista.disabled = true;
-
-  preencherOpcoesStatus(true);
-  document.getElementById('empStatus').value = emp.status ?? 'Emprestado';
-  tratarMudancaStatusEmprestimo();
-
-  if (emp.dataDevolucao) {
-    document.getElementById('empDataDevolucao').value = emp.dataDevolucao;
-  }
-  document.getElementById('empObservacao').value = emp.observacao ?? '';
-
-  document.getElementById('formEmpTitle').textContent = 'Atualizar Status do Empréstimo';
-  document.getElementById('btnSalvarEmpText').textContent = 'Salvar Alterações';
-  document.getElementById('btnCancelarEmp').classList.remove('d-none');
-}
-
 function resetarFormEmprestimo() {
-  document.getElementById('emprestimoForm').reset();
-  document.getElementById('emprestimoId').value = '';
+  const form = document.getElementById('emprestimoForm');
+  if (form) form.reset();
+
+  const inputId = document.getElementById('emprestimoId');
+  if (inputId) inputId.value = '';
 
   const selectColab = document.getElementById('empColaborador');
   const selectEpi = document.getElementById('empEquipamento');
   const inputRetirada = document.getElementById('empDataRetirada');
   const inputPrevista = document.getElementById('empDataPrevista');
 
-  selectColab.disabled = false;
-  selectEpi.disabled = false;
-  inputRetirada.disabled = false;
-  inputPrevista.disabled = false;
+  if (selectColab) selectColab.disabled = false;
+  if (selectEpi) selectEpi.disabled = false;
+  if (inputRetirada) {
+    inputRetirada.disabled = false;
+    inputRetirada.value = new Date().toISOString().slice(0, 16);
+  }
+  if (inputPrevista) inputPrevista.disabled = false;
 
-  document.getElementById('empDataRetirada').value = new Date().toISOString().slice(0, 16);
   preencherOpcoesStatus(false);
-
-  document.getElementById('formEmpTitle').textContent = 'Registrar Empréstimo';
-  document.getElementById('btnSalvarEmpText').textContent = 'Confirmar Retirada';
-  document.getElementById('btnCancelarEmp').classList.add('d-none');
 }
