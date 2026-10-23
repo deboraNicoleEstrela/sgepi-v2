@@ -8,17 +8,11 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
-
-
-
 </head>
 <body class="bg-light">
 
-  
-
   <div class="d-flex" id="wrapper">
     <!-- TELA BASE: MENU LATERAL (SIDEBAR) -->
-     
     <aside class="bg-dark text-white p-3 d-flex flex-column justify-content-between style-sidebar" id="sidebar">
       <div>
         <!-- Logo e Título do Sistema -->
@@ -29,10 +23,7 @@
 
         <hr class="text-secondary">
 
-        
-
         <!-- Navegação Principal -->
-         
         <ul class="nav nav-pills flex-column mb-auto" id="menuNavegacao" role="tablist">
           <li class="nav-item mb-1">
             <button class="nav-link active text-white w-100 text-start d-flex align-items-center gap-2" id="tab-colaboradores" data-bs-toggle="pill" data-bs-target="#sec-colaboradores" type="button">
@@ -53,7 +44,6 @@
       </div>
 
       <!-- TELA BASE: PERFIL DO USUÁRIO LOGADO -->
-       
       <div class="border-top border-secondary pt-3 mt-auto">
         <div class="d-flex align-items-center gap-3 px-1">
           <img src="https://ui-avatars.com/api/?name=Carlos+SST&background=0D6EFD&color=fff" alt="Foto do Operador" class="rounded-circle" width="40" height="40">
@@ -68,10 +58,10 @@
     <!-- CONTEÚDO PRINCIPAL (MAIN) -->
     <main class="w-100 p-4 overflow-auto">
       <div id="alertContainer"></div>
-        <header class="bg-white border-bottom px-4 py-2 d-flex justify-content-between align-items-center shadow-sm">
+      <header class="bg-white border-bottom px-4 py-2 d-flex justify-content-between align-items-center shadow-sm">
         <h5 class="m-0 fw-bold text-secondary">Sistema SGEPI</h5>
 
-        <!-- Bloco do Utilizador Logado (movido para aqui) -->
+        <!-- Bloco do Utilizador Logado -->
         <div class="d-flex align-items-center gap-3">
           <span class="text-dark small">
             <i class="bi bi-person-circle me-1 text-primary"></i>
@@ -98,16 +88,16 @@
                     <input type="hidden" id="colaboradorId">
                     <div class="mb-3">
                       <label for="nomeColab" class="form-label fw-semibold">Nome Completo *</label>
-                      <input type="text" class="form-control" id="nomeColab" placeholder="Ex: Carlos Eduardo Silva" required>
+                      <input type="text" class="form-control" id="nomeColab" placeholder="Ex: Carlos Eduardo Silva" maxlength="40" required>
                     </div>
                     <div class="row g-2 mb-3">
                       <div class="col-md-6">
                         <label for="cpfColab" class="form-label fw-semibold">CPF *</label>
-                        <input type="text" class="form-control" id="cpfColab" placeholder="000.000.000-00" required>
+                        <input type="text" class="form-control" id="cpfColab" placeholder="000.000.000-00" maxlength="40" required>
                       </div>
                       <div class="col-md-6">
                         <label for="matriculaColab" class="form-label fw-semibold">Matrícula *</label>
-                        <input type="text" class="form-control" id="matriculaColab" placeholder="TEX-1001" required>
+                        <input type="text" class="form-control" id="matriculaColab" placeholder="TEX-1001" maxlength="40" required>
                       </div>
                     </div>
                     <div class="row g-2 mb-3">
@@ -124,7 +114,7 @@
                       </div>
                       <div class="col-md-6">
                         <label for="cargoColab" class="form-label fw-semibold">Cargo *</label>
-                        <input type="text" class="form-control" id="cargoColab" placeholder="Ex: Armador / Tecelão" required>
+                        <input type="text" class="form-control" id="cargoColab" placeholder="Ex: Armador / Tecelão" maxlength="40" required>
                       </div>
                     </div>
                     <div class="mb-3">
@@ -149,13 +139,20 @@
               <div class="card border-0 shadow-sm rounded-3">
                 <div class="card-header bg-white p-3 border-bottom-0">
                   <div class="row g-2 align-items-center">
-                    <div class="col-md-6">
+                    <div class="col-md-5">
                       <h5 class="card-title m-0 fw-bold text-dark"><i class="bi bi-people-fill text-primary me-2"></i>Colaboradores Cadastrados</h5>
                     </div>
-                    <div class="col-md-6">
+                    <!-- FILTRO DINÂMICO DE PESQUISA (NOVO BLOCO INTEGRADO) -->
+                    <div class="col-md-7">
                       <div class="input-group">
+                        <select class="form-select bg-light" id="tipoPesquisaColab" style="max-width: 130px;">
+                          <option value="nome" selected>Nome</option>
+                          <option value="setor">Setor</option>
+                          <option value="cpf">CPF</option>
+                          <option value="matricula">Matrícula</option>
+                        </select>
                         <span class="input-group-text bg-light border-end-0"><i class="bi bi-search"></i></span>
-                        <input type="text" class="form-control bg-light border-start-0" id="pesquisaColab" placeholder="Pesquisar por nome...">
+                        <input type="text" class="form-control bg-light border-start-0" id="pesquisaColab" placeholder="Pesquisar por nome..." maxlength="40">
                       </div>
                     </div>
                   </div>
@@ -195,11 +192,11 @@
                     <input type="hidden" id="epiId">
                     <div class="mb-3">
                       <label for="nomeEpi" class="form-label fw-semibold">Nome do Equipamento *</label>
-                      <input type="text" class="form-control" id="nomeEpi" placeholder="Ex: Capacete de Segurança Aba Frontal" required>
+                      <input type="text" class="form-control" id="nomeEpi" placeholder="Ex: Capacete de Segurança Aba Frontal" maxlength="40" required>
                     </div>
                     <div class="mb-3">
                       <label for="caEpi" class="form-label fw-semibold">Número do C.A. *</label>
-                      <input type="text" class="form-control" id="caEpi" placeholder="Ex: CA-12345" required>
+                      <input type="text" class="form-control" id="caEpi" placeholder="Ex: CA-12345" maxlength="40" required>
                     </div>
                     <div class="row g-2 mb-3">
                       <div class="col-md-6">
@@ -291,7 +288,7 @@
                       </div>
                       <div class="mb-3">
                         <label for="empObservacao" class="form-label fw-semibold">Observação na Devolução</label>
-                        <textarea class="form-control" id="empObservacao" rows="2" placeholder="Descreva o estado do equipamento ou motivo de perda..."></textarea>
+                        <textarea class="form-control" id="empObservacao" rows="2" placeholder="Descreva o estado do equipamento ou motivo de perda..." maxlength="40"></textarea>
                       </div>
                     </div>
 
