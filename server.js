@@ -15,8 +15,8 @@ app.get('/', (req, res) => {
 // 1. Configuração da ligação ao banco de dados MySQL (sgepi_db)
 const db = mysql.createPool({
   host: 'localhost',
-  user: 'root',    // Substitua pelo seu utilizador do MySQL
-  password: '1811',  // Substitua pela sua palavra-passe do MySQL
+  user: 'SEU_USUARIO_AQUI!!!!',    // Substitua pelo seu utilizador do MySQL
+  password: 'SUA_SENHA_AQUI!!!!',  // Substitua pela sua palavra-passe do MySQL
   database: 'sgepi_db',   // Nome da base de dados do ficheiro
   waitForConnections: true,
   connectionLimit: 10,
