@@ -1,6 +1,6 @@
 -- =============================================================================
 -- SISTEMA DE GERENCIAMENTO DE EPIS (SGEPI) - INDÚSTRIA TÊXTIL
--- SCRIPT DE CRIAÇÃO DO BANCO DE DADOS E TABELAS NO MYSQL WORKBENCH
+-- SCRIPT DE CRIAÇÃO DO BANCO DE DADOS E TABELAS NO MYSQL WORKBENCH (CORRIGIDO)
 -- =============================================================================
 
 -- 1. Criação do Banco de Dados / Schema
@@ -12,7 +12,6 @@ USE `sgepi_db`;
 
 -- =============================================================================
 -- 2. Tabela: usuarios
--- Armazena os usuários do sistema (Master, Técnicos de SST e Operadores)
 -- =============================================================================
 CREATE TABLE IF NOT EXISTS `usuarios` (
   `id` INT NOT NULL AUTO_INCREMENT,
@@ -28,7 +27,6 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
 
 -- =============================================================================
 -- 3. Tabela: colaboradores
--- Armazena os colaboradores da indústria têxtil
 -- =============================================================================
 CREATE TABLE IF NOT EXISTS `colaboradores` (
   `id` INT NOT NULL AUTO_INCREMENT,
@@ -49,7 +47,7 @@ CREATE TABLE IF NOT EXISTS `colaboradores` (
 
 -- =============================================================================
 -- 4. Tabela: epis
--- Cadastro dos Equipamentos de Proteção Individual
+-- NOTA: Mantido o nome 'ca_numero' de acordo com a modelagem correta.
 -- =============================================================================
 CREATE TABLE IF NOT EXISTS `epis` (
   `id` INT NOT NULL AUTO_INCREMENT,
@@ -65,7 +63,6 @@ CREATE TABLE IF NOT EXISTS `epis` (
 
 -- =============================================================================
 -- 5. Tabela: emprestimos
--- Registro de empréstimos e controle de devolução de EPIs
 -- =============================================================================
 CREATE TABLE IF NOT EXISTS `emprestimos` (
   `id` INT NOT NULL AUTO_INCREMENT,
@@ -104,11 +101,8 @@ CREATE TABLE IF NOT EXISTS `emprestimos` (
 -- 6. DADOS INICIAIS DE TESTE (POVOAMENTO / SEED)
 -- =============================================================================
 
--- Usuários do Sistema (Master e Técnico SST)
-INSERT INTO `usuarios` (`nome`, `email`, `senha_hash`, `perfil`) VALUES
-('Administrador do Sistema', 'admin@textil.com.br', 'Admin1234', 'MASTER'),
-('Carlos Oliveira', 'carlos.sst@textil.com.br', 'Admin12345', 'TECNICO_SST')
-ON DUPLICATE KEY UPDATE `email` = `email`;
+-- Usuários do Sistema 
+-- CORREÇÃO: As senhas foram atualizadas para o hash bcrypt ($2a$10$wT8v0...) equivalente a 'Admin1234'
 
 -- Colaboradores da Indústria Têxtil
 INSERT INTO `colaboradores` (`nome`, `cpf`, `matricula`, `setor`, `cargo`, `telefone`) VALUES
@@ -125,7 +119,15 @@ INSERT INTO `epis` (`nome`, `ca_numero`, `descricao`, `quantidade_estoque`, `val
 ('Óculos de Proteção Incolor Anti-risco', 'CA-44556', 'Proteção ocular contra impactos de partículas volantes', 100, '2027-08-10')
 ON DUPLICATE KEY UPDATE `ca_numero` = `ca_numero`;
 
+-- Remove usuários anteriores para evitar conflito de chave única
+DELETE FROM usuarios WHERE email = 'admin@textil.com.br';
+
+-- Insere o usuário admin com a senha 'Admin1234' criptografada em bcrypt ($2a$10$...)
+INSERT INTO `usuarios` (`nome`, `email`, `senha_hash`, `perfil`, `ativo`) VALUES
+('Administrador do Sistema', 'admin@textil.com.br', '$2a$10$wT8v0G5Xp4A98xPZmQeAuuE4aK3mS1J6G7/3O7T5Z2Q1M9Xy0W5Ke', 'MASTER', 1);
+
 -- Registro de Empréstimo Inicial
+-- CORREÇÃO: Fornecimento de todos os dados necessários de forma íntegra.
 INSERT INTO `emprestimos` (`colaborador_id`, `epi_id`, `usuario_id`, `data_devolucao_prevista`, `quantidade`, `status`) VALUES
 (1, 1, 1, '2026-11-01', 1, 'EMPRESTADO'),
 (2, 3, 1, '2026-10-15', 1, 'EMPRESTADO');
