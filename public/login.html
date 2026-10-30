@@ -7,49 +7,33 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
   <style>
-    body {
-      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .card-login {
-      width: 100%;
-      max-width: 400px;
-      border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-    }
+    body { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .card-login { width: 100%; max-width: 400px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
   </style>
 </head>
 <body>
-
   <div class="card card-login bg-white p-4">
     <div class="text-center mb-4">
       <i class="bi bi-shield-lock-fill text-primary display-4"></i>
       <h3 class="fw-bold mt-2 text-dark">SGEPI</h3>
       <p class="text-muted small">Sistema de Gerenciamento de EPIs</p>
     </div>
-
     <div id="alertaLogin" class="alert alert-danger d-none p-2 small text-center" role="alert"></div>
-
     <form id="formLogin">
       <div class="mb-3">
-        <label for="usuario" class="form-label fw-semibold">E-mail de Acesso</label>
+        <label class="form-label fw-semibold">E-mail de Acesso</label>
         <div class="input-group">
           <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-          <input type="email" class="form-control" id="usuario" placeholder="admin@textil.com.br" required autocomplete="email">
+          <input type="email" class="form-control" id="usuario" placeholder="admin@textil.com.br" required>
         </div>
       </div>
-
       <div class="mb-4">
-        <label for="senha" class="form-label fw-semibold">Senha</label>
+        <label class="form-label fw-semibold">Senha</label>
         <div class="input-group">
           <span class="input-group-text"><i class="bi bi-key"></i></span>
-          <input type="password" class="form-control" id="senha" placeholder="Digite sua senha" required autocomplete="current-password">
+          <input type="password" class="form-control" id="senha" placeholder="Digite sua senha" required>
         </div>
       </div>
-
       <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">
         <i class="bi bi-box-arrow-in-right me-1"></i> Entrar
       </button>
@@ -57,46 +41,34 @@
   </div>
 
   <script>
-    // Se já estiver logado, redireciona diretamente para o sistema principal
-    if (sessionStorage.getItem('usuarioLogado') && sessionStorage.getItem('token')) {
-      window.location.href = 'index.html';
-    }
-
     document.getElementById('formLogin').addEventListener('submit', async (e) => {
       e.preventDefault();
-      
       const usuario = document.getElementById('usuario').value.trim();
       const senha = document.getElementById('senha').value.trim();
       const alerta = document.getElementById('alertaLogin');
-
       alerta.classList.add('d-none');
 
       try {
-        // Rota relativa para garantir compatibilidade com Localhost e Dev Tunnels
         const resposta = await fetch('/api/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ usuario, senha })
         });
-
         const dados = await resposta.json();
 
         if (resposta.ok && dados.success) {
-          // Salva os dados do usuário e o Token JWT na sessão do navegador
           sessionStorage.setItem('usuarioLogado', JSON.stringify(dados.user));
-          if (dados.token) {
-            sessionStorage.setItem('token', dados.token);
-          }
-          window.location.href = 'index.html';
+          sessionStorage.setItem('token', dados.token);
+          window.location.href = dados.user.perfil === 'COMUM' ? 'requisicoes.html' : 'index.html';
         } else {
-          alerta.textContent = dados.message || 'E-mail ou senha inválidos.';
+          alerta.textContent = dados.message || 'Credenciais inválidas.';
           alerta.classList.remove('d-none');
         }
       } catch (erro) {
-        alerta.textContent = 'Servidor backend inacessível. Verifique se o servidor Node está ativo.';
+        alerta.textContent = 'Erro ao conectar ao servidor.';
         alerta.classList.remove('d-none');
       }
     });
-  </script>
+  </script> 
 </body>
 </html>

@@ -2,7 +2,7 @@
 const usuarioLogado = JSON.parse(sessionStorage.getItem('usuarioLogado'));
 const tokenLogado = sessionStorage.getItem('token');
 
-if (!usuarioLogado) {
+if (!usuarioLogado || !tokenLogado) {
   window.location.href = 'login.html';
 }
 
@@ -15,25 +15,15 @@ function realizarLogout() {
 function carregarDadosUsuario() {
   if (!usuarioLogado) return;
 
-  // 1. Atualiza o nome do utilizador no cabeçalho superior
   const elNomeHeader = document.getElementById('nomeUsuarioLogado');
-  if (elNomeHeader) {
-    elNomeHeader.textContent = usuarioLogado.nome || 'Administrador';
-  }
+  if (elNomeHeader) elNomeHeader.textContent = usuarioLogado.nome || 'Administrador';
 
-  // 2. Atualiza o nome no canto inferior da sidebar
   const elNomeSidebar = document.getElementById('nomeUsuarioSidebar');
-  if (elNomeSidebar) {
-    elNomeSidebar.textContent = usuarioLogado.nome || 'Usuário';
-  }
+  if (elNomeSidebar) elNomeSidebar.textContent = usuarioLogado.nome || 'Usuário';
 
-  // 3. Atualiza o perfil/cargo no canto inferior da sidebar
   const elPerfilSidebar = document.getElementById('perfilUsuarioSidebar');
-  if (elPerfilSidebar) {
-    elPerfilSidebar.textContent = usuarioLogado.perfil || 'Técnico em SST';
-  }
+  if (elPerfilSidebar) elPerfilSidebar.textContent = usuarioLogado.perfil || 'Técnico em SST';
 
-  // 4. Gera as iniciais do avatar dinamicamente
   const elAvatarSidebar = document.getElementById('avatarUsuarioSidebar');
   if (elAvatarSidebar && usuarioLogado.nome) {
     const nomeEncoded = encodeURIComponent(usuarioLogado.nome);
@@ -52,7 +42,6 @@ let modalInfoInst = null;
 // INICIALIZAÇÃO DA APLICAÇÃO & EVENTOS
 // =============================================================================
 document.addEventListener('DOMContentLoaded', () => {
-  // Carrega nome e avatar do utilizador logado
   carregarDadosUsuario();
 
   const elModalColab = document.getElementById('modalColaborador') || document.getElementById('modalExcluir');
@@ -63,14 +52,12 @@ document.addEventListener('DOMContentLoaded', () => {
   if (elModalEpi) modalEpiInst = new bootstrap.Modal(elModalEpi);
   if (elModalInfo) modalInfoInst = new bootstrap.Modal(elModalInfo);
 
-  // Aplica limite de 40 caracteres
   document.querySelectorAll('input, textarea').forEach(campo => {
     if (campo.type !== 'date' && campo.type !== 'datetime-local') {
       campo.setAttribute('maxlength', '40');
     }
   });
 
-  // Campo Nome Colaborador
   const inputNome = document.getElementById('nomeColab');
   if (inputNome) {
     inputNome.addEventListener('input', (e) => {
@@ -79,7 +66,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Máscara CPF
   const inputCpf = document.getElementById('cpfColab');
   if (inputCpf) {
     inputCpf.addEventListener('input', (e) => {
@@ -92,7 +78,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Campo Matrícula
   const inputMatricula = document.getElementById('matriculaColab');
   if (inputMatricula) {
     inputMatricula.addEventListener('input', (e) => {
@@ -101,7 +86,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Campo Cargo
   const inputCargo = document.getElementById('cargoColab');
   if (inputCargo) {
     inputCargo.addEventListener('input', (e) => {
@@ -110,7 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Nome EPI
   const inputNomeEpi = document.getElementById('nomeEpi');
   if (inputNomeEpi) {
     inputNomeEpi.addEventListener('input', (e) => {
@@ -119,7 +102,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // C.A. EPI
   const inputCaEpi = document.getElementById('caEpi');
   if (inputCaEpi) {
     inputCaEpi.addEventListener('input', (e) => {
@@ -138,7 +120,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Observação Empréstimo
   const inputObservacao = document.getElementById('empObservacao');
   if (inputObservacao) {
     inputObservacao.addEventListener('input', (e) => {
@@ -146,13 +127,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Filtro e Pesquisa Colaboradores
   const inputPesquisa = document.getElementById('pesquisaColab');
   const selectTipoPesquisa = document.getElementById('tipoPesquisaColab');
 
   function aplicarRestricaoPesquisa() {
     if (!inputPesquisa || !selectTipoPesquisa) return;
-
     const tipo = selectTipoPesquisa.value;
     let v = inputPesquisa.value;
 
@@ -161,7 +140,6 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (tipo === 'cpf' || tipo === 'matricula') {
       v = v.replace(/\D/g, '');
     }
-
     inputPesquisa.value = v.slice(0, 40);
   }
 
@@ -187,13 +165,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Renderização Inicial
   renderizarColaboradores();
   renderizarEpis();
   preencherSelectsEmprestimo();
   renderizarEmprestimos();
+  carregarRequisicoesAdmin();
 
-  // Event Listeners dos Formulários
   document.getElementById('colaboradorForm')?.addEventListener('submit', tratarSubmitColaborador);
   document.getElementById('btnCancelarColab')?.addEventListener('click', resetarFormColaborador);
   document.getElementById('btnConfirmarExclusao')?.addEventListener('click', executarExclusaoColaborador);
@@ -233,7 +210,6 @@ function exibirAlerta(mensagem, tipo = 'success') {
   }, 4000);
 }
 
-// Helper para cabeçalhos HTTP autenticados
 function getHeadersAuth() {
   const headers = { 'Content-Type': 'application/json' };
   if (tokenLogado) {
@@ -262,7 +238,6 @@ async function renderizarColaboradores() {
 
     const filtrados = colaboradores.filter(c => {
       if (!termo) return true;
-
       let campoValor = '';
       switch (tipo) {
         case 'setor': campoValor = c.setor ?? ''; break;
@@ -270,7 +245,6 @@ async function renderizarColaboradores() {
         case 'matricula': campoValor = c.matricula ?? ''; break;
         case 'nome': default: campoValor = c.nome ?? ''; break;
       }
-
       return campoValor.toLowerCase().includes(termo);
     });
 
@@ -357,7 +331,6 @@ async function carregarColaboradorEdicao(id) {
 
 function abrirModalExcluirColab(id, nome, matricula, status) {
   idColabExcluir = id;
-  
   const elNome = document.getElementById('modalNomeColaborador');
   const elMatricula = document.getElementById('modalMatriculaColaborador');
   const elMsg = document.getElementById('modalMensagemAcaoColab');
@@ -369,13 +342,11 @@ function abrirModalExcluirColab(id, nome, matricula, status) {
   if (elMsg) elMsg.textContent = `Deseja realmente ${acao} o colaborador abaixo?`;
   
   document.getElementById('btnConfirmarExclusao').setAttribute('data-status-atual', status);
-
   modalColabInst?.show();
 }
 
 async function tratarSubmitColaborador(e) {
   e.preventDefault();
-
   const inputId = document.getElementById('colaboradorId') || document.getElementById('idColaborador');
   const id = inputId ? inputId.value : '';
   const nome = document.getElementById('nomeColab').value.trim();
@@ -393,20 +364,21 @@ async function tratarSubmitColaborador(e) {
   const dadosColaborador = { nome, cpf, matricula, setor, cargo, status };
 
   try {
+    let resposta;
     if (id) {
-      await fetch(`/api/colaboradores/${id}`, {
+      resposta = await fetch(`/api/colaboradores/${id}`, {
         method: 'PUT',
         headers: getHeadersAuth(),
         body: JSON.stringify(dadosColaborador)
       });
-      exibirAlerta(`Colaborador <strong>${nome}</strong> atualizado com sucesso!`, 'success');
+      if(resposta.ok) exibirAlerta(`Colaborador <strong>${nome}</strong> atualizado com sucesso!`, 'success');
     } else {
-      await fetch('/api/colaboradores', {
+      resposta = await fetch('/api/colaboradores', {
         method: 'POST',
         headers: getHeadersAuth(),
         body: JSON.stringify(dadosColaborador)
       });
-      exibirAlerta(`Colaborador <strong>${nome}</strong> cadastrado com sucesso!`, 'success');
+      if(resposta.ok) exibirAlerta(`Colaborador <strong>${nome}</strong> cadastrado com sucesso!`, 'success');
     }
   } catch (erro) {
     console.error('Erro ao salvar colaborador:', erro);
@@ -421,7 +393,6 @@ async function tratarSubmitColaborador(e) {
 
 async function executarExclusaoColaborador() {
   if (!idColabExcluir) return;
-
   const btnConfirmar = document.getElementById('btnConfirmarExclusao');
   const statusAtual = btnConfirmar.getAttribute('data-status-atual');
   const novoStatus = (statusAtual === 'INATIVO') ? 'ATIVO' : 'INATIVO';
@@ -487,7 +458,6 @@ async function renderizarEpis() {
 
     epis.forEach(e => {
       const dataValidade = e.validade_ca ? e.validade_ca.split('T')[0] : 'N/A';
-
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td class="fw-bold text-secondary">${e.ca_numero}</td>
@@ -526,10 +496,7 @@ async function carregarEpiEdicao(id) {
     document.getElementById('nomeEpi').value = epi.nome || '';
     document.getElementById('caEpi').value = epi.ca_numero || '';
     document.getElementById('estoqueEpi').value = epi.quantidade_estoque ?? 0;
-    
-    if (epi.validade_ca) {
-      document.getElementById('validadeCaEpi').value = epi.validade_ca.split('T')[0];
-    }
+    if (epi.validade_ca) document.getElementById('validadeCaEpi').value = epi.validade_ca.split('T')[0];
 
     const title = document.getElementById('formEpiTitle');
     const badge = document.getElementById('badgeEpiStatus');
@@ -537,10 +504,7 @@ async function carregarEpiEdicao(id) {
     const btnCancel = document.getElementById('btnCancelarEpi');
 
     if (title) title.textContent = 'Editar Equipamento';
-    if (badge) {
-      badge.textContent = 'Edição';
-      badge.className = 'badge bg-warning text-dark';
-    }
+    if (badge) { badge.textContent = 'Edição'; badge.className = 'badge bg-warning text-dark'; }
     if (btnText) btnText.textContent = 'Atualizar Equipamento';
     if (btnCancel) btnCancel.classList.remove('d-none');
 
@@ -564,28 +528,14 @@ async function tratarSubmitEpi(e) {
     return;
   }
 
-  const dadosEpi = {
-    nome: nome,
-    descricao: "",
-    ca_numero: ca,
-    quantidade_estoque: estoque,
-    validade_ca: validadeCa
-  };
+  const dadosEpi = { nome, descricao: "", ca_numero: ca, quantidade_estoque: estoque, validade_ca: validadeCa };
 
   try {
     if (id) {
-      await fetch(`/api/epis/${id}`, {
-        method: 'PUT',
-        headers: getHeadersAuth(),
-        body: JSON.stringify(dadosEpi)
-      });
+      await fetch(`/api/epis/${id}`, { method: 'PUT', headers: getHeadersAuth(), body: JSON.stringify(dadosEpi) });
       exibirAlerta(`Equipamento <strong>${nome}</strong> atualizado com sucesso!`, 'success');
     } else {
-      await fetch('/api/epis', {
-        method: 'POST',
-        headers: getHeadersAuth(),
-        body: JSON.stringify(dadosEpi)
-      });
+      await fetch('/api/epis', { method: 'POST', headers: getHeadersAuth(), body: JSON.stringify(dadosEpi) });
       exibirAlerta(`Equipamento <strong>${nome}</strong> cadastrado no estoque!`, 'success');
     }
     
@@ -607,13 +557,8 @@ function abrirModalExcluirEpi(id, nome, ca) {
 
 async function executarExclusaoEpi() {
   if (!idEpiExcluir) return;
-
   try {
-    const resposta = await fetch(`/api/epis/${idEpiExcluir}`, {
-      method: 'DELETE',
-      headers: getHeadersAuth()
-    });
-
+    const resposta = await fetch(`/api/epis/${idEpiExcluir}`, { method: 'DELETE', headers: getHeadersAuth() });
     if (resposta.ok) {
       exibirAlerta('Equipamento removido do estoque.', 'warning');
     } else {
@@ -634,17 +579,13 @@ function resetarFormEpi() {
   document.getElementById('epiForm')?.reset();
   const inputId = document.getElementById('epiId');
   if (inputId) inputId.value = '';
-
   const title = document.getElementById('formEpiTitle');
   const badge = document.getElementById('badgeEpiStatus');
   const btnText = document.getElementById('btnSalvarEpiText');
   const btnCancel = document.getElementById('btnCancelarEpi');
 
   if (title) title.textContent = 'Cadastrar Equipamento';
-  if (badge) {
-    badge.textContent = 'Novo';
-    badge.className = 'badge bg-white text-primary';
-  }
+  if (badge) { badge.textContent = 'Novo'; badge.className = 'badge bg-white text-primary'; }
   if (btnText) btnText.textContent = 'Salvar Equipamento';
   if (btnCancel) btnCancel.classList.add('d-none');
 }
@@ -666,9 +607,7 @@ async function preencherSelectsEmprestimo() {
     const colaboradores = resColabs.ok ? await resColabs.json() : [];
     const epis = resEpis.ok ? await resEpis.json() : [];
 
-    const colaboradoresAtivos = colaboradores.filter(c => 
-      (c.status ? String(c.status).trim().toUpperCase() : 'ATIVO') === 'ATIVO'
-    );
+    const colaboradoresAtivos = colaboradores.filter(c => (c.status ? String(c.status).trim().toUpperCase() : 'ATIVO') === 'ATIVO');
 
     selectColab.innerHTML = '<option value="" selected disabled>Selecione um colaborador ativo...</option>' +
       colaboradoresAtivos.map(c => `<option value="${c.id}">${c.nome} (${c.matricula})</option>`).join('');
@@ -685,8 +624,6 @@ async function preencherSelectsEmprestimo() {
 function preencherOpcoesStatus(modoEdicao = false) {
   const selectStatus = document.getElementById('empStatus');
   if (!selectStatus) return;
-
-  selectStatus.innerHTML = '';
 
   if (!modoEdicao) {
     selectStatus.innerHTML = `
@@ -715,9 +652,7 @@ function tratarMudancaStatusEmprestimo() {
   if (['Devolvido', 'Danificado', 'Perdido'].includes(status)) {
     container.classList.remove('d-none');
     dataDev.required = true;
-    if (!dataDev.value) {
-      dataDev.value = new Date().toISOString().slice(0, 16);
-    }
+    if (!dataDev.value) dataDev.value = new Date().toISOString().slice(0, 16);
   } else {
     container.classList.add('d-none');
     dataDev.required = false;
@@ -748,7 +683,6 @@ async function tratarSubmitEmprestimo(e) {
         const erro = await resposta.json();
         exibirAlerta(erro.erro || 'Erro ao processar devolução.', 'danger');
       }
-
     } else {
       const colaborador_id = document.getElementById('empColaborador').value;
       const epi_id = document.getElementById('empEquipamento').value;
@@ -764,11 +698,8 @@ async function tratarSubmitEmprestimo(e) {
         method: 'POST',
         headers: getHeadersAuth(),
         body: JSON.stringify({
-          colaborador_id,
-          epi_id,
-          usuario_id: usuarioLogado.id, 
-          data_devolucao_prevista,
-          quantidade: 1
+          colaborador_id, epi_id, usuario_id: usuarioLogado.id, 
+          data_devolucao_prevista, quantidade: 1
         })
       });
 
@@ -779,11 +710,9 @@ async function tratarSubmitEmprestimo(e) {
         exibirAlerta(erro.erro || 'Erro ao registar o empréstimo.', 'danger');
       }
     }
-
     resetarFormEmprestimo();
     renderizarEpis();
     renderizarEmprestimos();
-
   } catch (error) {
     console.error('Erro ao processar empréstimo:', error);
     exibirAlerta('Erro de comunicação com o servidor.', 'danger');
@@ -867,11 +796,19 @@ async function carregarEmprestimoEdicao(id) {
     document.getElementById('empDataPrevista').disabled = true;
 
     preencherOpcoesStatus(true); 
-    document.getElementById('empStatus').value = emp.status || 'Emprestado';
 
-    if (emp.data_devolucao_real) {
-      document.getElementById('empDataDevolucao').value = new Date(emp.data_devolucao_real).toISOString().slice(0, 16);
-    }
+    const mapaStatus = {
+      'EMPRESTADO': 'Emprestado',
+      'FORNECIDO': 'Fornecido',
+      'DEVOLVIDO': 'Devolvido',
+      'DANIFICADO': 'Danificado',
+      'DESCARTE': 'Perdido' 
+    };
+    
+    const statusFormatado = mapaStatus[emp.status?.toUpperCase()] || 'Emprestado';
+    document.getElementById('empStatus').value = statusFormatado;
+
+    if (emp.data_devolucao_real) document.getElementById('empDataDevolucao').value = new Date(emp.data_devolucao_real).toISOString().slice(0, 16);
     document.getElementById('empObservacao').value = emp.observacao || '';
 
     tratarMudancaStatusEmprestimo();
@@ -911,13 +848,8 @@ async function visualizarInfoStatus(id) {
       badge.className = `badge ${badgeClass} fs-7`;
     }
 
-    document.getElementById('infoDataDevolucao').textContent = emp.data_devolucao_real 
-      ? new Date(emp.data_devolucao_real).toLocaleString('pt-BR') 
-      : 'Pendente';
-
-    document.getElementById('infoObservacao').innerHTML = emp.observacao 
-      ? emp.observacao 
-      : '<em>Nenhuma observação registrada.</em>';
+    document.getElementById('infoDataDevolucao').textContent = emp.data_devolucao_real ? new Date(emp.data_devolucao_real).toLocaleString('pt-BR') : 'Pendente';
+    document.getElementById('infoObservacao').innerHTML = emp.observacao ? emp.observacao : '<em>Nenhuma observação registrada.</em>';
 
     modalInfoInst?.show();
   } catch (erro) {
@@ -954,4 +886,94 @@ function resetarFormEmprestimo() {
   if (btnCancel) btnCancel.classList.add('d-none');
 
   preencherOpcoesStatus(false);
+}
+
+// =============================================================================
+// MÓDULO 4: GERENCIAMENTO DE REQUISIÇÕES (ADMIN)
+// =============================================================================
+async function carregarRequisicoesAdmin() {
+  const tbody = document.getElementById('tbodyRequisicoesAdmin');
+  if (!tbody) return;
+
+  tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">A carregar requisições...</td></tr>';
+
+  try {
+    const res = await fetch('/api/requisicoes', { headers: getHeadersAuth() });
+    if (!res.ok) throw new Error('Erro ao carregar requisições');
+    
+    const reqs = await res.json();
+    tbody.innerHTML = '';
+
+    if (reqs.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">Nenhuma requisição encontrada.</td></tr>';
+      return;
+    }
+
+    reqs.forEach(r => {
+      let acoes = '';
+      let badgeStatus = '';
+
+      if (r.status === 'PENDENTE') badgeStatus = '<span class="badge bg-warning text-dark">PENDENTE</span>';
+      else if (r.status === 'APROVADA') badgeStatus = '<span class="badge bg-success">APROVADA</span>';
+      else if (r.status === 'REJEITADA') badgeStatus = '<span class="badge bg-danger">REJEITADA</span>';
+
+      if (r.status === 'PENDENTE') {
+        if (r.tipo === 'RETIRADA') {
+          acoes = `
+            <button class="btn btn-success btn-sm m-1" onclick="processarReq(${r.id}, 'APROVADA')"><i class="bi bi-check-lg"></i> Aprovar</button>
+            <button class="btn btn-danger btn-sm m-1" onclick="processarReq(${r.id}, 'REJEITADA')"><i class="bi bi-x-lg"></i> Rejeitar</button>
+          `;
+        } else if (r.tipo === 'DEVOLUCAO') {
+          acoes = `
+            <div class="dropdown d-inline-block">
+              <button class="btn btn-info btn-sm dropdown-toggle text-white m-1" type="button" data-bs-toggle="dropdown">
+                Processar Devolução
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" onclick="processarReq(${r.id}, 'APROVADA', 'PERFEITO')">Perfeito (Volta ao Estoque)</a></li>
+                <li><a class="dropdown-item" href="#" onclick="processarReq(${r.id}, 'APROVADA', 'QUEBRADO')">Quebrado (Descarte)</a></li>
+                <li><a class="dropdown-item" href="#" onclick="processarReq(${r.id}, 'APROVADA', 'PERDIDO')">Perdido (Extravio)</a></li>
+              </ul>
+            </div>
+          `;
+        }
+      }
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="fw-semibold">${r.usuario_nome || 'Usuário'}</td>
+        <td>${r.epi_nome} <small class="text-muted">(CA: ${r.ca_numero})</small></td>
+        <td><span class="badge bg-light text-dark border">${r.tipo}</span></td>
+        <td>${r.descricao}</td>
+        <td>${badgeStatus}</td>
+        <td class="text-center">${acoes || '-'}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (erro) {
+    console.error('Erro ao carregar requisições:', erro);
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-danger">Erro ao carregar requisições.</td></tr>';
+  }
+}
+
+async function processarReq(id, status, condicao = null) {
+  try {
+    const res = await fetch(`/api/requisicoes/${id}/processar`, {
+      method: 'PUT',
+      headers: getHeadersAuth(),
+      body: JSON.stringify({ status, condicao_devolucao: condicao })
+    });
+    
+    if (res.ok) {
+      exibirAlerta('Requisição processada com sucesso!', 'success');
+      carregarRequisicoesAdmin();
+      renderizarEpis(); 
+      renderizarEmprestimos(); 
+    } else {
+      exibirAlerta('Erro ao processar requisição.', 'danger');
+    }
+  } catch (erro) {
+    console.error('Erro ao processar requisição:', erro);
+    exibirAlerta('Erro de comunicação com o servidor.', 'danger');
+  }
 }

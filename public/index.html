@@ -25,19 +25,32 @@
 
         <!-- Navegação Principal -->
         <ul class="nav nav-pills flex-column mb-auto" id="menuNavegacao" role="tablist">
+
+          <!-- Aba de Colaboradores (Adicionado) -->
           <li class="nav-item mb-1">
             <button class="nav-link active text-white w-100 text-start d-flex align-items-center gap-2" id="tab-colaboradores" data-bs-toggle="pill" data-bs-target="#sec-colaboradores" type="button">
               <i class="bi bi-people-fill"></i> Colaboradores
             </button>
           </li>
+
+          <!-- Aba de Equipamentos (Adicionado) -->
           <li class="nav-item mb-1">
             <button class="nav-link text-white w-100 text-start d-flex align-items-center gap-2" id="tab-epis" data-bs-toggle="pill" data-bs-target="#sec-epis" type="button">
               <i class="bi bi-boxes"></i> Equipamentos (EPI)
             </button>
           </li>
+
+          <!-- Aba de Emnprestimo (Adicionado) -->
           <li class="nav-item mb-1">
             <button class="nav-link text-white w-100 text-start d-flex align-items-center gap-2" id="tab-emprestimos" data-bs-toggle="pill" data-bs-target="#sec-emprestimos" type="button">
               <i class="bi bi-arrow-left-right"></i> Empréstimo de EPI
+            </button>
+          </li>
+
+          <!-- Aba de Requisições (Adicionado) -->
+          <li class="nav-item mb-1">
+            <button class="nav-link text-white w-100 text-start d-flex align-items-center gap-2" id="tab-requisicoes" data-bs-toggle="pill" data-bs-target="#sec-requisicoes" type="button">
+              <i class="bi bi-card-checklist"></i> Requisições
             </button>
           </li>
         </ul>
@@ -302,6 +315,7 @@
                 </div>
               </div>
             </div>
+    
 
             <div class="col-lg-7 col-xl-8">
               <div class="card border-0 shadow-sm rounded-3">
@@ -324,6 +338,30 @@
                   </table>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- MÓDULO 4: GERENCIAMENTO DE REQUISIÇÕES -->
+        <section class="tab-pane fade" id="sec-requisicoes" role="tabpanel">
+          <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-header bg-white p-3 border-bottom-0">
+              <h5 class="card-title m-0 fw-bold text-dark"><i class="bi bi-card-checklist text-primary me-2"></i>Gerenciamento de Requisições (Portal do Colaborador)</h5>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark">
+                  <tr>
+                    <th>Solicitante</th>
+                    <th>Equipamento (C.A.)</th>
+                    <th>Tipo</th>
+                    <th>Motivo / Descrição</th>
+                    <th>Status</th>
+                    <th class="text-center">Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyRequisicoesAdmin"></tbody>
+              </table>
             </div>
           </div>
         </section>
